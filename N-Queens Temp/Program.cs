@@ -23,7 +23,7 @@ namespace N_Queens
                 return 0;
         }
 
-        public int steps;
+        public long steps;
         public int column;
         public int[] gameBoard;
     }
@@ -32,6 +32,7 @@ namespace N_Queens
     {
         static List<Solution> solutions;
         static int boardSize = 0;
+        static long steps = 0;
 
         static void Main(string[] args)
         {
@@ -51,59 +52,23 @@ namespace N_Queens
         static void PlaceAllQueens()
         {
             PlaceQueen(0, 0, new int[boardSize]);
-            //bool hasSolution = true;
-            //int row = 0;
-            //while (hasSolution)
-            //{
-            //    bool placed = PlaceQueen(currentSolution.column, row);
-            //    if (placed)
-            //    {
-            //        currentSolution.column++;
-            //        row = 0;
-            //    }
-            //    else
-            //    {
-            //        //Console.WriteLine($"Removed queen at [{currentSolution.column}, {row}]");
-            //        currentSolution.column--;
-            //        row = currentSolution.CurrentRow() + 1;
-            //    }
-
-            //    if (currentSolution.column < 0)
-            //    {
-            //        hasSolution = false;
-            //        solutions.Pop();
-            //    }
-            //    else if (currentSolution.column >= boardSize)
-            //    {
-            //        if (UniqueSolution(currentSolution))
-            //        {
-            //            solutions.Push(new Solution(boardSize));
-            //            currentSolution = solutions.Peek();
-            //        }
-            //        else
-            //        {
-            //            currentSolution.column = currentSolution.column--;
-            //            row = currentSolution.CurrentRow() + 1;
-            //        }
-            //    }
-            //}
         }
 
         static void PlaceQueen(int column, int row, int[] gameBoard)
         {
             for (int i = 0; i < boardSize; ++i)
             {
+                ++steps;
                 gameBoard[column] = i;
                 bool valid = QueenIsValid(i, column, gameBoard);
                 if (valid)
                 {
                     if (column >= boardSize - 1)
                     {
-                        if (UniqueSolution(gameBoard))
-                        {
-                            solutions.Add(new Solution(gameBoard));
-                            PlaceQueen(0, 0, new int[boardSize]);
-                        }
+                        Solution solution = new Solution(gameBoard);
+                        solution.steps = steps;
+                        solutions.Add(solution);
+                        break;
                     }
                     else
                     {
@@ -132,37 +97,6 @@ namespace N_Queens
             }
 
             return isValid;
-        }
-
-        static bool UniqueSolution(int[] solution)
-        {
-            bool unique = true;
-
-            foreach (Solution s in solutions)
-            {
-                if (EqualSolutions(s, solution))
-                {
-                    unique = false;
-                    break;
-                }
-            }
-
-            return unique;
-        }
-
-        static bool EqualSolutions(Solution s1, int[] s2)
-        {
-            bool equal = true;
-            for (int i = 0; i < s1.gameBoard.Length; ++i)
-            {
-                if (s1.gameBoard[i] != s2[i])
-                {
-                    equal = false;
-                    break;
-                }
-            }
-
-            return equal;
         }
 
         static int GetBoardSizeFromUser()
@@ -194,7 +128,7 @@ namespace N_Queens
         {
             int count = 1;
             Console.WriteLine($"**Total Solutions: {solutions.Count}\n");
-            for (int j = solutions.Count - 1; j >= 0; --j)
+            for (int j = 0; j < solutions.Count; ++j)
             {
                 Console.WriteLine($"Solution {count++}:\nSteps taken = {solutions.ElementAt(j).steps}\n");
                 int[] gameBoard = solutions.ElementAt(j).gameBoard;
