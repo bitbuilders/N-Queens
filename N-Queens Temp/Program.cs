@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace N_Queens_Temp
+namespace N_Queens
 {
     class Solution
     {
@@ -17,7 +17,10 @@ namespace N_Queens_Temp
 
         public int CurrentRow()
         {
-            return gameBoard[column];
+            if (column >= 0 && column < gameBoard.Length)
+                return gameBoard[column];
+            else
+                return 0;
         }
 
         public int steps;
@@ -27,8 +30,6 @@ namespace N_Queens_Temp
 
     class Program
     {
-
-
         static Stack<Solution> solutions;
         static int boardSize = 0;
 
@@ -42,6 +43,7 @@ namespace N_Queens_Temp
         {
             solutions = new Stack<Solution>();
             boardSize = GetBoardSizeFromUser();
+            Console.WriteLine($"\n**n = {boardSize}");
             PlaceAllQueens();
             PrintBoard();
         }
@@ -53,43 +55,42 @@ namespace N_Queens_Temp
             Solution currentSolution = solutions.Peek();
             bool hasSolution = true;
 
-            int row = 0;
-            while (hasSolution)
-            {
-                bool placed = PlaceQueen(currentSolution.column, row);
-                if (placed)
-                {
-                    currentSolution.column++;
-                    row = 0;
-                }
-                else
-                {
-                    currentSolution.column--;
-                    row = currentSolution.CurrentRow() + 1;
-                }
+            PlaceQueen(0, 0);
+            //int row = 0;
+            //while (hasSolution)
+            //{
+            //    bool placed = PlaceQueen(currentSolution.column, row);
+            //    if (placed)
+            //    {
+            //        currentSolution.column++;
+            //        row = 0;
+            //    }
+            //    else
+            //    {
+            //        //Console.WriteLine($"Removed queen at [{currentSolution.column}, {row}]");
+            //        currentSolution.column--;
+            //        row = currentSolution.CurrentRow() + 1;
+            //    }
 
-                if (currentSolution.column >= currentSolution.gameBoard.Length)
-                {
-                    if (UniqueSolution(currentSolution))
-                    {
-                        hasSolution = false;
-                        //solutions.Push(new Solution(boardSize));
-                        currentSolution = solutions.Peek();
-                        row = 0;
-                    }
-                    else
-                    {
-                        solutions.Pop();
-                        hasSolution = false;
-                    }
-                }
-                else if (currentSolution.column < 0)
-                {
-                    solutions.Pop();
-
-                    hasSolution = false;
-                }
-            }
+            //    if (currentSolution.column < 0)
+            //    {
+            //        hasSolution = false;
+            //        solutions.Pop();
+            //    }
+            //    else if (currentSolution.column >= boardSize)
+            //    {
+            //        if (UniqueSolution(currentSolution))
+            //        {
+            //            solutions.Push(new Solution(boardSize));
+            //            currentSolution = solutions.Peek();
+            //        }
+            //        else
+            //        {
+            //            currentSolution.column = currentSolution.column--;
+            //            row = currentSolution.CurrentRow() + 1;
+            //        }
+            //    }
+            //}
         }
 
         static bool PlaceQueen(int column, int row)
@@ -99,7 +100,7 @@ namespace N_Queens_Temp
             int[] gameBoard = solution.gameBoard;
             solution.steps++;
             
-            if (column >= gameBoard.Length || row >= gameBoard.Length)
+            if (column >= boardSize || row >= boardSize)
             {
                 return false;
             }
@@ -108,19 +109,32 @@ namespace N_Queens_Temp
             int currentRow = row;
             while (!validPlacement)
             {
-                if (currentRow >= gameBoard.Length)
+                solution.steps++;
+                currentRow++;
+
+                if (currentRow >= boardSize)
                 {
                     placedQueen = false;
                     break;
                 }
 
-                solution.steps++;
-                currentRow++;
                 gameBoard[column] = currentRow;
                 validPlacement = QueenIsValid(currentRow, column);
+                //if (!validPlacement)
+                //    Console.WriteLine($"Queen attempt failed at [{column}, {currentRow}]");
             }
             if (placedQueen)
-                Console.WriteLine($"Placed queen at [{column}, {currentRow}]");
+            {
+                if (column >= boardSize - 1)
+                {
+                    solutions.Push(new Solution(boardSize));
+                    PlaceQueen(0, 0);
+                }
+                else
+                {
+                    PlaceQueen(column + 1, 0);
+                }
+            }
 
             return placedQueen;
         }
@@ -135,8 +149,8 @@ namespace N_Queens_Temp
                 for (int i = column - 1; i >= 0; --i)
                 {
                     int checkIndexBelow = (column - i) + row;
-                    int checkIndexAbove = (column - i) - row;
-                    if (gameBoard[i] == row || gameBoard[i] == checkIndexAbove || gameBoard[i] == checkIndexAbove)
+                    int checkIndexAbove = row - (column - i);
+                    if (gameBoard[i] == row || gameBoard[i] == checkIndexAbove || gameBoard[i] == checkIndexBelow)
                     {
                         isValid = false;
                         break;
@@ -208,26 +222,35 @@ namespace N_Queens_Temp
 
         static void PrintBoard()
         {
-            int[] gameBoard = solutions.Peek().gameBoard;
-            int size = gameBoard.Length;
-            for (int i = 0; i < size * size; ++i)
+            int count = 1;
+            Console.WriteLine($"**Total Solutions: {solutions.Count}\n");
+            for (int j = solutions.Count - 1; j >= 0; --j)
             {
-                int y = i / size;
-                int x = i % size;
-                if (x == 0 && i != 0)
+                Console.WriteLine($"Solution {count++}:\nSteps taken = {solutions.ElementAt(j).steps}\n");
+                int[] gameBoard = solutions.ElementAt(j).gameBoard;
+                int size = gameBoard.Length;
+                for (int i = 0; i < size * size; ++i)
                 {
-                    Console.WriteLine();
+                    int y = i / size;
+                    int x = i % size;
+                    if (x == 0 && i != 0)
+                    {
+                        Console.WriteLine();
+                    }
+                    if (y == gameBoard[x])
+                    {
+                        Console.Write("|Q|");
+                    }
+                    else
+                    {
+                        Console.Write("| |");
+                    }
                 }
-                if (y == gameBoard[x])
-                {
-                    Console.Write("|Q|");
-                }
-                else
-                {
-                    Console.Write("| |");
-                }
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine("------------------------------");
+                Console.WriteLine();
             }
-            Console.WriteLine();
         }
     }
 }
