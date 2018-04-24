@@ -8,11 +8,11 @@ namespace N_Queens
 {
     class Solution
     {
-        public Solution(int boardSize)
+        public Solution(int[] board)
         {
             steps = 0;
             column = 0;
-            gameBoard = new int[boardSize];
+            gameBoard = board;
         }
 
         public int CurrentRow()
@@ -30,7 +30,7 @@ namespace N_Queens
 
     class Program
     {
-        static Stack<Solution> solutions;
+        static List<Solution> solutions;
         static int boardSize = 0;
 
         static void Main(string[] args)
@@ -41,7 +41,7 @@ namespace N_Queens
 
         static void RestartAlgorithm()
         {
-            solutions = new Stack<Solution>();
+            solutions = new List<Solution>();
             boardSize = GetBoardSizeFromUser();
             Console.WriteLine($"\n**n = {boardSize}");
             PlaceAllQueens();
@@ -50,12 +50,8 @@ namespace N_Queens
 
         static void PlaceAllQueens()
         {
-            solutions.Push(new Solution(boardSize));
-
-            Solution currentSolution = solutions.Peek();
-            bool hasSolution = true;
-
-            PlaceQueen(0, 0);
+            PlaceQueen(0, 0, new int[boardSize]);
+            //bool hasSolution = true;
             //int row = 0;
             //while (hasSolution)
             //{
@@ -93,55 +89,32 @@ namespace N_Queens
             //}
         }
 
-        static bool PlaceQueen(int column, int row)
+        static void PlaceQueen(int column, int row, int[] gameBoard)
         {
-            bool placedQueen = true;
-            Solution solution = solutions.Peek();
-            int[] gameBoard = solution.gameBoard;
-            solution.steps++;
-            
-            if (column >= boardSize || row >= boardSize)
+            for (int i = 0; i < boardSize; ++i)
             {
-                return false;
-            }
-            gameBoard[column] = row;
-            bool validPlacement = QueenIsValid(row, column);
-            int currentRow = row;
-            while (!validPlacement)
-            {
-                solution.steps++;
-                currentRow++;
-
-                if (currentRow >= boardSize)
+                gameBoard[column] = i;
+                bool valid = QueenIsValid(i, column, gameBoard);
+                if (valid)
                 {
-                    placedQueen = false;
-                    break;
-                }
-
-                gameBoard[column] = currentRow;
-                validPlacement = QueenIsValid(currentRow, column);
-                //if (!validPlacement)
-                //    Console.WriteLine($"Queen attempt failed at [{column}, {currentRow}]");
-            }
-            if (placedQueen)
-            {
-                if (column >= boardSize - 1)
-                {
-                    solutions.Push(new Solution(boardSize));
-                    PlaceQueen(0, 0);
-                }
-                else
-                {
-                    PlaceQueen(column + 1, 0);
+                    if (column >= boardSize - 1)
+                    {
+                        if (UniqueSolution(gameBoard))
+                        {
+                            solutions.Add(new Solution(gameBoard));
+                            PlaceQueen(0, 0, new int[boardSize]);
+                        }
+                    }
+                    else
+                    {
+                        PlaceQueen(column + 1, 0, (int[])gameBoard.Clone());
+                    }
                 }
             }
-
-            return placedQueen;
         }
 
-        static bool QueenIsValid(int row, int column)
+        static bool QueenIsValid(int row, int column, int[] gameBoard)
         {
-            int[] gameBoard = solutions.Peek().gameBoard;
             bool isValid = true;
 
             if (column > 0)
@@ -161,31 +134,28 @@ namespace N_Queens
             return isValid;
         }
 
-        static bool UniqueSolution(Solution solution)
+        static bool UniqueSolution(int[] solution)
         {
             bool unique = true;
 
             foreach (Solution s in solutions)
             {
-                if (s != solution)
+                if (EqualSolutions(s, solution))
                 {
-                    if (EqualSolutions(s, solution))
-                    {
-                        unique = false;
-                        break;
-                    }
+                    unique = false;
+                    break;
                 }
             }
 
             return unique;
         }
 
-        static bool EqualSolutions(Solution s1, Solution s2)
+        static bool EqualSolutions(Solution s1, int[] s2)
         {
             bool equal = true;
             for (int i = 0; i < s1.gameBoard.Length; ++i)
             {
-                if (s1.gameBoard[i] != s2.gameBoard[i])
+                if (s1.gameBoard[i] != s2[i])
                 {
                     equal = false;
                     break;
