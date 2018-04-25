@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace N_Queens
@@ -30,6 +31,7 @@ namespace N_Queens
 
     class Program
     {
+        static Stopwatch sw;
         static List<Solution> solutions;
         static int boardSize = 0;
         static long steps = 0;
@@ -38,6 +40,7 @@ namespace N_Queens
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to N-Queens!\n");
+            sw = new Stopwatch();
             RestartAlgorithm();
         }
 
@@ -46,8 +49,13 @@ namespace N_Queens
             solutions = new List<Solution>();
             boardSize = GetBoardSizeFromUser();
             Console.WriteLine($"\n**n = {boardSize}");
+            sw.Start();
             PlaceAllQueens();
+            sw.Stop();
             PrintBoard();
+            Console.WriteLine();
+            //Console.WriteLine($"{solutionCount} solutions in {sw.ElapsedMilliseconds / 1000} seconds ({sw.ElapsedMilliseconds} millis)\n\n");
+            Console.WriteLine($"Took {sw.ElapsedMilliseconds / 1000} seconds ({sw.ElapsedMilliseconds} millis)\n\n");
         }
 
         static void PlaceAllQueens()
@@ -66,6 +74,7 @@ namespace N_Queens
                 {
                     if (column >= boardSize - 1)
                     {
+                        //++solutionCount;
                         Solution solution = new Solution(gameBoard);
                         solution.steps = steps;
                         solutions.Add(solution);
