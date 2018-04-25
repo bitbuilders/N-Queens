@@ -33,6 +33,7 @@ namespace N_Queens
         static List<Solution> solutions;
         static int boardSize = 0;
         static long steps = 0;
+        static long solutionCount = 1;
 
         static void Main(string[] args)
         {
@@ -126,11 +127,20 @@ namespace N_Queens
 
         static void PrintBoard()
         {
-            int count = 1;
-            Console.WriteLine($"**Total Solutions: {solutions.Count}\n");
+            StringBuilder sb = new StringBuilder();
+            sb.Append("**Total Solutions: ");
+            sb.Append(solutions.Count);
+            sb.Append("\n\n");
+            //Console.WriteLine($"**Total Solutions: {solutions.Count}\n");
             for (int j = 0; j < solutions.Count; ++j)
             {
-                Console.WriteLine($"Solution {count++}:\nSteps taken = {solutions.ElementAt(j).steps}\n");
+                sb.Append("Solution ");
+                sb.Append(solutionCount++);
+                sb.Append(":\n");
+                sb.Append("Steps Taken = ");
+                sb.Append(solutions.ElementAt(j).steps);
+                sb.Append("\n\n");
+                //Console.WriteLine($"Solution {count++}:\nSteps taken = {solutions.ElementAt(j).steps}\n");
                 int[] gameBoard = solutions.ElementAt(j).gameBoard;
                 int size = gameBoard.Length;
                 for (int i = 0; i < size * size; ++i)
@@ -139,22 +149,28 @@ namespace N_Queens
                     int x = i % size;
                     if (x == 0 && i != 0)
                     {
-                        Console.WriteLine();
+                        sb.Append("\n");
+                        //Console.WriteLine();
                     }
                     if (y == gameBoard[x])
                     {
-                        Console.Write("|Q|");
+                        sb.Append("|Q|");
+                        //Console.Write("|Q|");
                     }
                     else
                     {
-                        Console.Write("| |");
+                        sb.Append("| |");
+                        //Console.Write("| |");
                     }
                 }
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine("------------------------------");
-                Console.WriteLine();
+                sb.Append("\n\n--------------------------\n\n");
+                //Console.WriteLine();
+                //Console.WriteLine();
+                //Console.WriteLine("------------------------------");
+                //Console.WriteLine();
             }
+
+            Console.WriteLine(sb.ToString());
         }
     }
 }
